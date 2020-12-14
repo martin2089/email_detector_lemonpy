@@ -14,36 +14,21 @@ from PIL import Image
 from string import punctuation
 import time
 from pathlib import Path
-import os
+import os, json, requests
 
 st.set_page_config(layout="wide")
 
 #----------Conexion con la Base de datos-----------------
 
-BASE_DIR = Path().absolute()
+HOST = "http://django-email-detector-dev.us-east-1.elasticbeanstalk.com/app/"
 
-def create_connection(db_file):
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-    except Error as e:
-        print(e)
-    return conn
+data_login = {'username': "dashboard", 'password':"d4shb0ard123"}
+response = requests.post(HOST+'api-token-auth/',data_login)
+token = json.loads(response.content.decode('utf-8'))['token']
+headers = { 'Authorization': f'JWT {token}' }
+res = requests.get(HOST+'database/',headers=headers)
 
-@st.cache
-def main():
-    database = os.path.join(BASE_DIR.parent, 'db.sqlite3')
-
-    conn = create_connection(database)
-    with conn:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM 'app_detector_emails_historico'")
-        df = cur.fetchall()
-    return pd.DataFrame(df)
- 
-
-if __name__ == '__main__':
-    df = main()
+df = pd.DataFrame.from_dict(json.loads(res.content.decode('utf-8')))
 
 df = df.rename(columns={0:'Usuario', 1: 'Texto',2:'Resultado',3:'Timestamp'})
 df['Timestamp'] = pd.to_datetime(df['Timestamp'],utc=False)
