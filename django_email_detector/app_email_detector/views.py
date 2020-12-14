@@ -116,11 +116,11 @@ class History(views.APIView):
 
 class DataBase(views.APIView):
     # Guardo el número y paso la lista de históricos:
-    def get(self, request, num):
+    def get(self, request):
         #Creo un objeto de mis modelos para persistir este numero
         email_hist = Emails_Historico.objects.all()
         context = []
-        if (request.user.username == "dashboard")
+        if (request.user.username == "dashboard"):
             for eh in email_hist:
                 dic = {
                 "usuario": eh.usuario,
