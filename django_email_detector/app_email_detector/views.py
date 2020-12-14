@@ -122,16 +122,17 @@ class DataBase(views.APIView):
         context = []
         if (request.user.username == "dashboard")
             for eh in email_hist:
-                 dic = {
-                 "usuario": eh.usuario,
-                 "text": eh.texto, 
-                 "result": eh.result, 
-                 "created_at": eh.created_at
-                 }
-                 context.append(dic)
+                dic = {
+                "usuario": eh.usuario,
+                "text": eh.texto, 
+                "result": eh.result, 
+                "created_at": eh.created_at
+                }
+                context.append(dic)
             return Response(context, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+            
 #--------------------------------------------------------------
         
 @permission_classes([AllowAny])       
