@@ -26,7 +26,7 @@ SECRET_KEY = 'jb+2j4##9p(fxjp(4-6*8gk%a5lh@68)*cxgv(%!koh(f*2p!y'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["django-email-detector-dev.us-east-1.elasticbeanstalk.com"]
 
 MODEL_ROOT = os.path.join(BASE_DIR,"models")
 
