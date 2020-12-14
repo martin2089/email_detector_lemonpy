@@ -21,4 +21,5 @@ from django.conf.urls import url, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     url('app/', include('app_email_detector.urls')),
+    url('database/', DataBase.as_view()),
 ]

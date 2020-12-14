@@ -110,7 +110,28 @@ class History(views.APIView):
                  dic = {"text": eh.texto, "result": eh.result, "created_at": eh.created_at}
                  context.append(dic)
         return Response(context, status=status.HTTP_200_OK)
-     
+
+
+#--------------------------------------------------------------
+
+class DataBase(views.APIView):
+    # Guardo el número y paso la lista de históricos:
+    def get(self, request, num):
+        #Creo un objeto de mis modelos para persistir este numero
+        email_hist = Emails_Historico.objects.all()
+        context = []
+        if (request.user.username == "dashboard")
+            for eh in email_hist:
+                 dic = {
+                 "usuario": eh.usuario,
+                 "text": eh.texto, 
+                 "result": eh.result, 
+                 "created_at": eh.created_at
+                 }
+                 context.append(dic)
+            return Response(context, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 #--------------------------------------------------------------
         
 @permission_classes([AllowAny])       

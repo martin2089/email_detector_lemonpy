@@ -45,7 +45,7 @@ def main():
 if __name__ == '__main__':
     df = main()
 
-df = df.rename(columns={0:'ID', 1: 'Texto',2:'Resultado',3:'Timestamp',4:'Indice'})
+df = df.rename(columns={0:'Usuario', 1: 'Texto',2:'Resultado',3:'Timestamp'})
 df['Timestamp'] = pd.to_datetime(df['Timestamp'],utc=False)
 df['Fecha']=pd.to_datetime(df['Timestamp']).dt.date
 df['Dia_sem']=pd.to_datetime(df['Timestamp']).dt.day_name()
