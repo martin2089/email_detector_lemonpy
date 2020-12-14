@@ -39,10 +39,7 @@ class QuotaInfo(views.APIView):
                 cuota_used = item.quota_used
                 context = {"disponible": cuota_disp, "procesados": cuota_used}
                 return Response(context, status=status.HTTP_200_OK) 
-        response = {
-            'message': 'no encuntra usuario',
-            }
-        return Response(response,status=status.HTTP_401_UNAUTHORIZED)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
         
 #--------------------------------------------------------------
 
