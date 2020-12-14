@@ -16,11 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 # Para llamar las url en app_spam_selector
-from django.conf.urls import url, include  
-from app_email_detector.views import DataBase
+from django.conf.urls import url, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url('app/', include('app_email_detector.urls')),
-    url('database/', DataBase.as_view()),
 ]
