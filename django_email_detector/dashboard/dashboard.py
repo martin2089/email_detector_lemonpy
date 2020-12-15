@@ -14,7 +14,7 @@ from PIL import Image
 from string import punctuation
 import time
 from pathlib import Path
-import os, json, requests
+import os, json, requests, pytz
 
 st.set_page_config(layout="wide")
 
@@ -30,18 +30,21 @@ res = requests.get(HOST+'database/',headers=headers)
 
 df = pd.DataFrame.from_dict(json.loads(res.content.decode('utf-8')))
 
-df = df.rename(columns={0:'Usuario', 1: 'Texto',2:'Resultado',3:'Timestamp'})
-df['Timestamp'] = pd.to_datetime(df['Timestamp'],utc=False)
-df['Fecha']=pd.to_datetime(df['Timestamp']).dt.date
-df['Dia_sem']=pd.to_datetime(df['Timestamp']).dt.day_name()
-df['Hora']=pd.to_datetime(df['Timestamp']).dt.hour
+df.created_at = pd.to_datetime(df.created_at)
+df['created_at'] = df['created_at'].dt.tz_convert('America/Argentina/Buenos_Aires')
+
+df = df.rename(columns={"usuario": "ID", "text": 'Texto', "result":'Resultado', "created_at":'Timestamp'})
+
+df['Fecha'] = df['Timestamp'].dt.date
+df['Dia_sem'] = df['Timestamp'].dt.day_name()
+df['Hora'] = df['Timestamp'].dt.hour
 df['Longitud'] = df['Texto'].str.translate(str.maketrans("", "", punctuation)).str.split().str.len()
 df = df.sort_values('Timestamp',ascending=False)
 
 #----------Template del dashboard---------------------
 
-img = Image.open(os.path.join(BASE_DIR, 'udesa.jpg'))
-st.image(img,width=150)
+#img = Image.open(os.path.join(BASE_DIR, 'udesa.jpg'))
+#st.image(img,width=150)
 st.title("Dashboard Monitoreo API clasificacion de Spam-Ham")
 
 st.sidebar.title("Filtros y segmentación de datos")
