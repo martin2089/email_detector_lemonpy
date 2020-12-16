@@ -30,11 +30,15 @@ res = requests.get(HOST+'database/',headers=headers)
 
 df = pd.DataFrame.from_dict(json.loads(res.content.decode('utf-8')))
 
+
+path = os.getcwd()
+img = Image.open(os.path.join(path,"images/udesa.jpg"))
+st.image(img,width=150)
+st.title("Dashboard Monitoreo API clasificacion de Spam-Ham")
+
 df.created_at = pd.to_datetime(df.created_at)
 df['created_at'] = df['created_at'].dt.tz_convert('America/Argentina/Buenos_Aires')
-
 df = df.rename(columns={"usuario": "ID", "text": 'Texto', "result":'Resultado', "created_at":'Timestamp'})
-
 df['Fecha'] = df['Timestamp'].dt.date
 df['Dia_sem'] = df['Timestamp'].dt.day_name()
 df['Hora'] = df['Timestamp'].dt.hour
@@ -43,8 +47,10 @@ df = df.sort_values('Timestamp',ascending=False)
 
 #----------Template del dashboard---------------------
 
-#img = Image.open(os.path.join(BASE_DIR, 'udesa.jpg'))
-#st.image(img,width=150)
+BASE_DIR = Path().absolute()
+st.write(BASE_DIR)
+img = Image.open(os.path.join(BASE_DIR, 'images/udesa.jpg'))
+st.image(img,width=150)
 st.title("Dashboard Monitoreo API clasificacion de Spam-Ham")
 
 st.sidebar.title("Filtros y segmentación de datos")
