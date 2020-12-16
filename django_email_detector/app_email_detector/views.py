@@ -87,7 +87,7 @@ class Predict(views.APIView):
                     item.quota_used = item.quota_used + 1
                     item.save()
                     prediction = Predict.clasificador(request.data["text"], username)
-                    if prediction == 0:
+                    if prediction == "HAM":
                         context = {"result":"HAM","status":"ok"}
                     else:
                         context = {"result":"SPAM","status":"ok"}
