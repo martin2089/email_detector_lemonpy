@@ -101,15 +101,14 @@ class History(views.APIView):
     # Guardo el número y paso la lista de históricos:
     def get(self, request, num):
         #Creo un objeto de mis modelos para persistir este numero
-        contador = num
-        email_hist = Emails_Historico.objects.all().orderby("indice").reverse()
+        cont = num
+        email_hist = Emails_Historico.objects.all()
         context = []
         for eh in email_hist:
-            if (eh.usuario == request.user.username) and contador:
-                 contador = contador - 1
+            if (eh.usuario == request.user.username):
                  dic = {"text": eh.texto, "result": eh.result, "created_at": eh.created_at}
-                 context.append(dic)
-        return Response(context, status=status.HTTP_200_OK)
+                 context.append(dic)    
+        return Response(context[-cont:], status=status.HTTP_200_OK)
 
 
 #--------------------------------------------------------------
