@@ -117,9 +117,9 @@ class DataBase(views.APIView):
     # Guardo el número y paso la lista de históricos:
     def get(self, request):
         #Creo un objeto de mis modelos para persistir este numero
-        email_hist = Emails_Historico.objects.all()
-        context = []
         if (request.user.username == "dashboard"):
+            email_hist = Emails_Historico.objects.all()
+            context = []
             for eh in email_hist:
                 dic = {
                 "usuario": eh.usuario,
@@ -134,36 +134,39 @@ class DataBase(views.APIView):
             
 #--------------------------------------------------------------
         
-@permission_classes([AllowAny])       
 class QuotaRegistration(views.APIView):
     def post(self, request):
-        username = request.data.get("usuario")
-        quota = request.data.get("quota")
-        quota_used = request.data.get("quota_used")
-        status_code = status.HTTP_201_CREATED
-        Quota_Info.objects.create(usuario=username, quota=quota, quota_used=quota_used)
-        response = {
-            'message': 'User registered  successfully',
-            }
-        return Response(response, status=status_code)
+        if (request.user.username == "operador"):
+            username = request.data.get("usuario")
+            quota = request.data.get("quota")
+            quota_used = request.data.get("quota_used")
+            status_code = status.HTTP_201_CREATED
+            Quota_Info.objects.create(usuario=username, quota=quota, quota_used=quota_used)
+            response = {'message': 'User registered  successfully'}
+            return Response(response, status=status_code)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 #--------------------------------------------------------------
 
-@permission_classes([AllowAny])       
 class QuotaUpdate(views.APIView):
     def post(self, request):
-        entro = 0
-        username = request.data.get("usuario")
-        quota = request.data.get("quota")
-        quota_used = request.data.get("quota_used")
-        for item in Quota_Info.objects.all():
-            if item.usuario == username:
-                entro = 1
-                item.quota_used = quota_used
-                item.quota = quota
-                item.save()
-        if entro == 1:
-            response = {'message': 'User registered  successfully'}
+        if (request.user.username == "operador"):
+            entro = 0
+            username = request.data.get("usuario")
+            quota = request.data.get("quota")
+            quota_used = request.data.get("quota_used")
+            for item in Quota_Info.objects.all():
+                if item.usuario == username:
+                    entro = 1
+                    item.quota_used = quota_used
+                    item.quota = quota
+                    item.save()
+            if entro == 1:
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            response = {'message': 'FAILED'}
-        return Response(response)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+

@@ -14,3 +14,6 @@ class Command(BaseCommand):
         
         if not User.objects.filter(username="dashboard").exists():
             User.objects.create_user("dashboard","dashboard@lemon.com", "d4shb0ard123")
+            
+        if not User.objects.filter(username="operador").exists():
+            User.objects.create_user("operador","operador@lemon.com", "0per4dor123")
