@@ -20,36 +20,31 @@ st.set_page_config(layout="wide")
 
 #----------Conexion con la Base de datos-----------------
 
-HOST = "http://django-email-detector-dev.us-east-1.elasticbeanstalk.com/app/"
+@st.cache(show_spinner=False)
+def get_base():
+    HOST = "http://django-email-detector-dev.us-east-1.elasticbeanstalk.com/app/"
+    data_login = {'username': "dashboard", 'password':"d4shb0ard123"}
+    response = requests.post(HOST+'api-token-auth/',data_login)
+    token = json.loads(response.content.decode('utf-8'))['token']
+    headers = { 'Authorization': f'JWT {token}' }
+    res = requests.get(HOST+'database/',headers=headers)
+    df = pd.DataFrame.from_dict(json.loads(res.content.decode('utf-8')))
+    df.created_at = pd.to_datetime(df.created_at)
+    df['created_at'] = df['created_at'].dt.tz_convert('America/Argentina/Buenos_Aires')
+    df = df.rename(columns={"usuario": "ID", "text": 'Texto', "result":'Resultado', "created_at":'Timestamp'})
+    df['Fecha'] = df['Timestamp'].dt.date
+    df['Dia_sem'] = df['Timestamp'].dt.day_name()
+    df['Hora'] = df['Timestamp'].dt.hour
+    df['Longitud'] = df['Texto'].str.translate(str.maketrans("", "", punctuation)).str.split().str.len()
+    df = df.sort_values('Timestamp',ascending=False)
+    return df
 
-data_login = {'username': "dashboard", 'password':"d4shb0ard123"}
-response = requests.post(HOST+'api-token-auth/',data_login)
-token = json.loads(response.content.decode('utf-8'))['token']
-headers = { 'Authorization': f'JWT {token}' }
-res = requests.get(HOST+'database/',headers=headers)
-
-df = pd.DataFrame.from_dict(json.loads(res.content.decode('utf-8')))
-
-
-path = os.getcwd()
-img = Image.open(os.path.join(path,"images/udesa.jpg"))
-st.image(img,width=150)
-st.title("Dashboard Monitoreo API clasificacion de Spam-Ham")
-
-df.created_at = pd.to_datetime(df.created_at)
-df['created_at'] = df['created_at'].dt.tz_convert('America/Argentina/Buenos_Aires')
-df = df.rename(columns={"usuario": "ID", "text": 'Texto', "result":'Resultado', "created_at":'Timestamp'})
-df['Fecha'] = df['Timestamp'].dt.date
-df['Dia_sem'] = df['Timestamp'].dt.day_name()
-df['Hora'] = df['Timestamp'].dt.hour
-df['Longitud'] = df['Texto'].str.translate(str.maketrans("", "", punctuation)).str.split().str.len()
-df = df.sort_values('Timestamp',ascending=False)
+df = get_base()
 
 #----------Template del dashboard---------------------
 
-BASE_DIR = Path().absolute()
-st.write(BASE_DIR)
-img = Image.open(os.path.join(BASE_DIR, 'images/udesa.jpg'))
+path = os.getcwd()
+img = Image.open(os.path.join(path,"images/udesa.jpg"))
 st.image(img,width=150)
 st.title("Dashboard Monitoreo API clasificacion de Spam-Ham")
 
@@ -80,7 +75,6 @@ if st.sidebar.checkbox("Busqueda avanzada"):
     if mail != "Todos":
         df_filter = df_filter[df_filter['Resultado']==mail]
 
-
     st.header('Gráficos segmentados por filtros')
 
     #Graficos segmentados
@@ -89,10 +83,6 @@ if st.sidebar.checkbox("Busqueda avanzada"):
 
     df_spam = df_filter.groupby(['ID','Resultado']).size().reset_index(name='qty')
     sns.barplot(ax=ax1,data=df_spam,x=df_spam.ID,y=df_spam.qty,hue=df_spam.Resultado, palette="Blues")
-    # ax1.legend(loc="upper right", title="Tipo", labels=["Ham","Spam"])
-    # leg = ax1.get_legend()
-    # leg.legendHandles[0].set_color(sns.color_palette("Blues")[0])
-    # leg.legendHandles[1].set_color(sns.color_palette("Blues")[3])
     ax1.set_title('Total clasificaciones por usuario')
     ax1.set_xlabel('Usuario')
     ax1.set_ylabel('Consultas')
@@ -112,7 +102,7 @@ if st.sidebar.checkbox("Busqueda avanzada"):
 
     #Base de datos
     df_filter = df_filter[:size]
-    st.table(df_filter)
+    st.table(df_filter.astype('object'))
 
 else:
     st.header("Resumen registro de actividad histórico")
@@ -138,6 +128,7 @@ else:
     ax1.set_xlabel('Dia de semana')
     ax1.set_ylabel('Hora')
     ax1.tick_params(axis='x',rotation=45)
+
     #HSerie de tiempo de uso de la API.
     df_uso = df.groupby('Fecha')['Resultado'].count().reset_index(name="uso_diario")
     sns.lineplot(ax=ax2,x=df_uso.Fecha,y=df_uso.uso_diario,data=df_uso,palette="Blues", marker='o')
@@ -166,7 +157,6 @@ else:
     ax4.set_title('Histograma de longitud de los textos según clasificación',size=12)
     ax4.set_xlabel('Cantidad de palabras')
     ax4.set_ylabel('Cantidad de consultas')
-
 
     st.pyplot(fig)
 
